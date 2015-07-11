@@ -20,6 +20,7 @@
 		6A68946D1B519CAA00931C08 /* libHKWirelessHDlw.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A68946A1B519CAA00931C08 /* libHKWirelessHDlw.a */; };
 		6A68946E1B519CAA00931C08 /* License-iOS-Omni.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 6A68946B1B519CAA00931C08 /* License-iOS-Omni.pdf */; };
 		6A68946F1B519CAA00931C08 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 6A68946C1B519CAA00931C08 /* README.md */; };
+		49C833321B51A2F2001658DD /* Level.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C833311B51A2F2001658DD /* Level.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@
 		6A68946A1B519CAA00931C08 /* libHKWirelessHDlw.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libHKWirelessHDlw.a; sourceTree = "<group>"; };
 		6A68946B1B519CAA00931C08 /* License-iOS-Omni.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "License-iOS-Omni.pdf"; sourceTree = "<group>"; };
 		6A68946C1B519CAA00931C08 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		49C833311B51A2F2001658DD /* Level.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Level.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,6 +128,7 @@
 				49C833081B50CF4B001658DD /* LaunchScreen.storyboard */,
 				49C8330B1B50CF4B001658DD /* Info.plist */,
 				49C8332D1B50DE22001658DD /* Collisions.swift */,
+				49C833311B51A2F2001658DD /* Level.swift */,
 			);
 			path = RaycastV2;
 			sourceTree = "<group>";
@@ -316,6 +319,7 @@
 				49C833001B50CF4B001658DD /* GameViewController.swift in Sources */,
 				6A68946F1B519CAA00931C08 /* README.md in Sources */,
 				49C8332E1B50DE22001658DD /* Collisions.swift in Sources */,
+				49C833321B51A2F2001658DD /* Level.swift in Sources */,
 				49C832FE1B50CF4B001658DD /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
