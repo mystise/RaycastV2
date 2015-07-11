@@ -180,87 +180,75 @@ func test(point: Vector, rect: Rect) -> Bool {
     return true
 }
 
-func test(ray: Ray, line: LineSeg, bias: Double) -> Vector? {
+//TODO: Fix this to test line segments
+/*func test(circle: Circle, line: LineSeg) -> Bool { //May collide at multiple points, thus just return whether or not it collides.
+    let dx = line.point2.x - line.point1.x
+    let dy = line.point2.y - line.point1.y
+    let dr2 = dx * dx + dy * dy
+    let D = line.point1.x * line.point2.y - line.point2.x * line.point1.y
+    let discriminant = circle.radius * circle.radius * dr2 - D * D
+    
+    return discriminant >= 0.0
+}*/
+
+/*func test(ray: Ray, line: LineSeg) -> Vector? {
     return nil
 }
 
-func test(ray: Ray, circle: Circle, bias: Double) -> Vector? {
+func test(ray: Ray, circle: Circle) -> Vector? {
     return nil
-}
+}*/
 
 //Velocity is premultiplied with the framerate, thus the circle moves along the entire length in this function.
-func handleCollision(var circle: Circle, circleVelocity: Vector, var line: LineSeg, bias: Double) -> Vector? { //If return vector exists, it's the new velocity vector. (Adjusted for collisions and sliding. Perhaps make it non-optional)
-    //Broad phase
+func handleCollision(var circle: Circle, circleVelocity: Vector, var line: LineSeg) -> Vector { //Return vector is the new velocity vector. (Adjusted for collisions and sliding)
     
-    /*let minLineX = min(line.point1.x, line.point2.x)
-    let maxCircleX = circle.center.x + circle.radius
-    
-    if minLineX >= maxCircleX {
-        return nil
-    }
-    
-    let maxLineX = max(line.point1.x, line.point2.x)
-    let minCircleX = circle.center.x - circle.radius
-    
-    if maxLineX <= minCircleX {
-        return nil
-    }
-    
-    let minLineY = min(line.point1.y, line.point2.y)
-    let maxCircleY = circle.center.y + circle.radius
-    
-    if minLineY >= maxCircleY {
-        return nil
-    }
-    
-    let maxLineY = max(line.point1.y, line.point2.y)
-    let minCircleY = circle.center.y - circle.radius
-    
-    if maxLineY <= minCircleY {
-        return nil
-    }*/
-    
-    //Narrow phase
-    
-    circle.center -= line.point1
+    circle.center -= line.point1 //Transform into point1's space to make calculations easier
     line.point2 -= line.point1
     line.point1 = Vector(x: 0.0, y: 0.0)
     
     var lineNormal = Vector(x: line.point2.y, y: -line.point2.x).norm()
-    if lineNormal * circle.center > 0.0 { //If the normal is pointing towards us, reverse it.
+    if lineNormal * circle.center < 0.0 { //Ensure the normal is facing towards us
         lineNormal = -lineNormal
     }
     
-    if lineNormal * circleVelocity < 0.0 { //If we're moving away from the wall
+    if lineNormal * circleVelocity >= 0.0 { //Allow all movement away from and parallel to the wall
         return circleVelocity
     }
     
-    //Projection a onto b: a dot b * b / mag(b)^2
+    let nearPoint = circle.center - lineNormal * circle.radius
     
-    let point1 = circle.center + lineNormal * circle.radius
-    
-    if point1 * lineNormal > 0.0 { //If we're stuck in a wall already, and we're not moving away, cancel all movement.
+    if nearPoint * lineNormal < 0.0 { //If we're stuck in a wall already, and we're not moving away, cancel all movement.
         return Vector(x: 0.0, y: 0.0)
     }
     
-    let line2 = LineSeg(point1: point1, point2: point1 + circleVelocity)
+    let velocityNormal = Vector(x: circleVelocity.y, y: -circleVelocity.x).norm()
     
-    let collision = test(line, line1: line2)
+    let point1 = circle.center - velocityNormal * circle.radius //Get the two points sweeping the bounding rectangle of the movement.
+    let point2 = circle.center + velocityNormal * circle.radius
     
-    if let collisionPoint = collision {
-        
-    } else {
-        return circleVelocity
+    let line1 = LineSeg(point1: point1, point2: point1 + circleVelocity)
+    let line2 = LineSeg(point1: point2, point2: point2 + circleVelocity)
+    
+    var finalCircle = Circle(center: circle.center + circleVelocity, radius: circle.radius)
+    
+    let collision = test(line, line1: line1) != nil || test(line, line1: line2) != nil
+    //let finalCircleCollide = finalCircle.center * lineNormal < circle.radius
+    
+    if collision /*|| finalCircleCollide*/ {
+        //Projection a onto b: a dot b * b / mag(b)^2
+        let moveVec = lineNormal * (finalCircle.center * lineNormal + circle.radius)
+        finalCircle.center += moveVec
+        return finalCircle.center - circle.center
     }
+    
+    return circleVelocity
     
     //Transform everything into line.point1's space
     //Take circle center, find vector to line (Take line's normal and multiply by distance to line, then re-normalize.)
-    //Offset center by vector to line * radius, to find the line segment most likely to contact line. If collision is detected, find distance from final center to line, and offset by that + radius + bias. (Along the normal vector)
+    //If collision is detected, find distance from final center to line, and offset by that + radius + bias. (Along the normal vector)
     //That's for the simple case of not colliding, moving towards line and colliding with it.
     
     //Other cases: Moving away from line (Should probably not modify this at all, lest other bugs cause bigger problems)
     //Moving into corner (Could cause problems where order of operations changes final location)
     //Partially colliding at beginning
-    
-    return nil
 }

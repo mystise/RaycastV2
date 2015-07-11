@@ -29,14 +29,56 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="3" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Awk-1K-0gN">
+                                <rect key="frame" x="0.0" y="-21" width="42" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Life:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gx9-sQ-XsD">
+                                <rect key="frame" x="0.0" y="-21" width="42" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="u6k-Wa-dPI" firstAttribute="leading" secondItem="AeR-QF-rrK" secondAttribute="trailing" constant="8" id="3Au-rg-lXo"/>
                             <constraint firstItem="u6k-Wa-dPI" firstAttribute="top" secondItem="8aa-yV-Osq" secondAttribute="bottom" id="BD5-CG-JXQ"/>
+                            <constraint firstItem="Awk-1K-0gN" firstAttribute="top" secondItem="8aa-yV-Osq" secondAttribute="bottom" id="MCw-WZ-zp6"/>
                             <constraint firstAttribute="leadingMargin" secondItem="AeR-QF-rrK" secondAttribute="leading" id="OJd-OL-7MC"/>
+                            <constraint firstItem="gx9-sQ-XsD" firstAttribute="top" secondItem="8aa-yV-Osq" secondAttribute="bottom" id="XE4-b3-TeL"/>
                             <constraint firstItem="AeR-QF-rrK" firstAttribute="top" secondItem="8aa-yV-Osq" secondAttribute="bottom" id="eNT-Uc-nhS"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="u6k-Wa-dPI" secondAttribute="trailing" id="jza-bw-BYR"/>
+                            <constraint firstItem="Awk-1K-0gN" firstAttribute="leading" secondItem="gx9-sQ-XsD" secondAttribute="trailing" constant="8" id="fGF-Rn-gAC"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="Awk-1K-0gN" secondAttribute="trailing" id="rux-Hl-t4M"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="subviews">
+                                <exclude reference="Awk-1K-0gN"/>
+                                <exclude reference="gx9-sQ-XsD"/>
+                            </mask>
+                            <mask key="constraints">
+                                <exclude reference="3Au-rg-lXo"/>
+                                <exclude reference="XE4-b3-TeL"/>
+                                <exclude reference="MCw-WZ-zp6"/>
+                                <exclude reference="fGF-Rn-gAC"/>
+                                <exclude reference="rux-Hl-t4M"/>
+                            </mask>
+                        </variation>
+                        <variation key="widthClass=regular">
+                            <mask key="subviews">
+                                <include reference="Awk-1K-0gN"/>
+                                <include reference="gx9-sQ-XsD"/>
+                            </mask>
+                            <mask key="constraints">
+                                <include reference="3Au-rg-lXo"/>
+                                <include reference="XE4-b3-TeL"/>
+                                <include reference="MCw-WZ-zp6"/>
+                                <include reference="fGF-Rn-gAC"/>
+                                <include reference="rux-Hl-t4M"/>
+                            </mask>
+                        </variation>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SZV-WD-TEh" sceneMemberID="firstResponder"/>

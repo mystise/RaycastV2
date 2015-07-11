@@ -76,10 +76,10 @@ class GameViewController:UIViewController, MTKViewDelegate {
         
         // load any resources required for rendering
         let view = self.view as! MTKView
-        commandQueue = device.newCommandQueue()
-        commandQueue.label = "main command queue"
+        self.commandQueue = device.newCommandQueue()
+        self.commandQueue.label = "main command queue"
         
-        let defaultLibrary = device.newDefaultLibrary()!
+        let defaultLibrary = self.device.newDefaultLibrary()!
         let fragmentProgram = defaultLibrary.newFunctionWithName("passThroughFragment")!
         let vertexProgram = defaultLibrary.newFunctionWithName("passThroughVertex")!
         
@@ -90,18 +90,18 @@ class GameViewController:UIViewController, MTKViewDelegate {
         pipelineStateDescriptor.sampleCount = view.sampleCount
         
         do {
-            try pipelineState = device.newRenderPipelineStateWithDescriptor(pipelineStateDescriptor)
+            try self.pipelineState = self.device.newRenderPipelineStateWithDescriptor(pipelineStateDescriptor)
         } catch let error {
             print("Failed to create pipeline state, error \(error)")
         }
         
         // generate a large enough buffer to allow streaming vertices for 3 semaphore controlled frames
-        vertexBuffer = device.newBufferWithLength(ConstantBufferSize, options: [])
-        vertexBuffer.label = "vertices"
+        self.vertexBuffer = self.device.newBufferWithLength(ConstantBufferSize, options: [])
+        self.vertexBuffer.label = "vertices"
         
         let vertexColorSize = vertexData.count * sizeofValue(vertexColorData[0])
-        vertexColorBuffer = device.newBufferWithBytes(vertexColorData, length: vertexColorSize, options: [])
-        vertexColorBuffer.label = "colors"
+        self.vertexColorBuffer = self.device.newBufferWithBytes(vertexColorData, length: vertexColorSize, options: [])
+        self.vertexColorBuffer.label = "colors"
     }
     
     func update() {
