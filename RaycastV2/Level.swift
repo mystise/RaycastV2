@@ -9,6 +9,7 @@
 import Foundation
 
 struct Level {
+    var size: Rect
     var walls: [LineSeg]
     //Wall image
     var enemies: [Enemy]
