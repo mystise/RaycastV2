@@ -17,6 +17,7 @@
 		49C833201B50CF4B001658DD /* RaycastV2UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C8331F1B50CF4B001658DD /* RaycastV2UITests.swift */; };
 		49C8332E1B50DE22001658DD /* Collisions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C8332D1B50DE22001658DD /* Collisions.swift */; };
 		49C833301B5187DE001658DD /* CollisionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C8332F1B5187DE001658DD /* CollisionsTests.swift */; };
+		49C833321B51A2F2001658DD /* Level.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C833311B51A2F2001658DD /* Level.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,7 @@
 		49C833211B50CF4B001658DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		49C8332D1B50DE22001658DD /* Collisions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Collisions.swift; sourceTree = "<group>"; };
 		49C8332F1B5187DE001658DD /* CollisionsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollisionsTests.swift; sourceTree = "<group>"; };
+		49C833311B51A2F2001658DD /* Level.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Level.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +113,7 @@
 				49C833081B50CF4B001658DD /* LaunchScreen.storyboard */,
 				49C8330B1B50CF4B001658DD /* Info.plist */,
 				49C8332D1B50DE22001658DD /* Collisions.swift */,
+				49C833311B51A2F2001658DD /* Level.swift */,
 			);
 			path = RaycastV2;
 			sourceTree = "<group>";
@@ -267,6 +270,7 @@
 				49C833021B50CF4B001658DD /* Shaders.metal in Sources */,
 				49C833001B50CF4B001658DD /* GameViewController.swift in Sources */,
 				49C8332E1B50DE22001658DD /* Collisions.swift in Sources */,
+				49C833321B51A2F2001658DD /* Level.swift in Sources */,
 				49C832FE1B50CF4B001658DD /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

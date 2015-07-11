@@ -71,6 +71,9 @@ class GameViewController:UIViewController, MTKViewDelegate {
     }
     
     func loadAssets() {
+        //Initialize players
+        //Initialize level
+        
         // load any resources required for rendering
         let view = self.view as! MTKView
         commandQueue = device.newCommandQueue()

@@ -22,5 +22,10 @@ class CollisionsTests: XCTestCase {
         line2.point2 = Vector(x: 0.0, y: 2.0)
         
         XCTAssertEqual(test(line, line1: line2)!, Vector(x: 1.0, y: 1.0), "Failed to detect correct collision point")
+        
+        line2.point1 = Vector(x: 0.0, y: -1.0)
+        line2.point2 = Vector(x: 2.0, y: 1.0)
+        
+        XCTAssert(test(line, line1: line2) == nil, "Lines should not collide")
     }
 }
