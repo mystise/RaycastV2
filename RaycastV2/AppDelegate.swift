@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import HKWControlHandler.h
+import HKWPlayerEventHandlerSingleton.h
+import HKWDeviceEventHandlerSingleton.h
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
