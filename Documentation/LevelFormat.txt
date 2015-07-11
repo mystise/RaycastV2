@@ -1,0 +1,31 @@
+Level type: Arena / Linear
+
+Linear:
+Start, End
+Walls
+Enemy start, enemy waypoint, enemy end, trigger zone name, row number (Enemies don't appear until you get within the zone, defeating all enemies in a row gets you +1 health)
+Trigger zone boxes
+
+Arena:
+Enemy count, enemy spawn rate, randomly pick from placed spawn points (Enemies have AI and follow you, never despawn on their own.)
+Walls
+Start (End is triggered automatically when boss is beaten)
+Boss start, boss waypoint (Always loops)
+
+Waypoint:
+Location, list of shots and directions of those shots, speed of shots, speed of travel to next waypoint (Traveling from one waypoint to the next is always linearly interpolated)
+
+wall_tex walls.png
+floor_tex floor.png
+ceil_tex ceil.png
+
+world_size 50 50
+
+start 0 0
+end 100 100
+wall 10 10 20 20
+zone trigger_1 5 5 10 10
+#Enemy: trigger zone name, row number (-1 means no row bonus), Number of waypoints, waypoint list
+#Waypoint: speed, position, shot count, (shot: turn dir, wait, heading)
+waypoint 
+enemy trigger_1 -1 3 
