@@ -78,7 +78,7 @@ kernel void raycast(texture2d<half, access::read> wallPositionTexture [[ texture
     
     while (iposition.x < int(outTexture.get_width()) && iposition.y < int(outTexture.get_height()) && iposition.x >= 0 && iposition.y >= 0) {
         half4 value = wallPositionTexture.read(uint2(iposition));
-        if (value.r == 1.0) {
+        if (value.r > 0.5) {
             totalDistance = distance_squared(float2(iposition), position);
             break;
         }
