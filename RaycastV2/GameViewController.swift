@@ -23,6 +23,17 @@ let vertexData:[Float] =
     1.0, -1.0, 0.0, 1.0,
 ]
 
+struct Player {
+    var posx: Float
+    var posy: Float
+    var fov: Float
+    var rot: Float
+    
+    func getData() -> [Float] {
+        return [self.posx, self.posy, self.fov, self.rot]
+    }
+}
+
 class GameViewController:UIViewController, MTKViewDelegate {
     let device: MTLDevice = MTLCreateSystemDefaultDevice()!
     
@@ -33,9 +44,11 @@ class GameViewController:UIViewController, MTKViewDelegate {
     var renderPipelineState: MTLRenderPipelineState! = nil
     var rayPipelineState: MTLComputePipelineState! = nil
     var vertexBuffer: MTLBuffer! = nil
+    var playerBuffer: MTLBuffer! = nil
     
     var computeTexOut: MTLTexture! = nil
     var computeSize = 64
+    var player: Player = Player(posx: 1.0, posy: 1.0, fov: 80.0, rot: 0.0)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -87,17 +100,27 @@ class GameViewController:UIViewController, MTKViewDelegate {
         
         vData.initializeFrom(vertexData)
         
+        let rayProgram = defaultLibrary.newFunctionWithName("raycast")!
+        
         do {
-            try self.rayPipelineState = self.device.newComputePipelineStateWithFunction(defaultLibrary.newFunctionWithName("raycast")!)
+            try self.rayPipelineState = self.device.newComputePipelineStateWithFunction(rayProgram)
         } catch let error {
             print("Failed to create ray pipeline state, error \(error)")
         }
+        
+        self.playerBuffer = self.device.newBufferWithLength(ConstantBufferSize, options: [])
+        self.playerBuffer.label = "uniforms"
     }
     
     func update() {
         //Move player, move enemies, do collision detection
         
         //Create list of all enemies and place in billboard buffer, also place all other billboards
+        
+        let playerData = playerBuffer.contents()
+        let playerMPData = UnsafeMutablePointer<Float>(playerData)
+        
+        playerMPData.initializeFrom(player.getData())
     }
     
     func drawInView(view: MTKView) {
