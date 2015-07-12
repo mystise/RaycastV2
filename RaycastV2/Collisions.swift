@@ -215,24 +215,25 @@ func handleCollision(var circle: Circle, circleVelocity: Vector, var line: LineS
         return circleVelocity
     }
     
-    let nearPoint = circle.center - lineNormal * circle.radius
+    //let nearPoint = circle.center - lineNormal * circle.radius
     
-    if nearPoint * lineNormal < 0.0 { //If we're stuck in a wall already, and we're not moving away, cancel all movement.
+    /*if nearPoint * lineNormal < 0.0 { //If we're stuck in a wall already, and we're not moving away, cancel all movement.
         return Vector(x: 0.0, y: 0.0)
-    }
+    }*/
     
-    let velocityNormal = Vector(x: circleVelocity.y, y: -circleVelocity.x).norm()
+    //let velocityNormal = Vector(x: circleVelocity.y, y: -circleVelocity.x).norm()
     
-    let point1 = circle.center - velocityNormal * circle.radius //Get the two points sweeping the bounding rectangle of the movement.
-    let point2 = circle.center + velocityNormal * circle.radius
+    //let point1 = circle.center - velocityNormal * circle.radius //Get the two points sweeping the bounding rectangle of the movement.
+    //let point2 = circle.center + velocityNormal * circle.radius
     
-    let line1 = LineSeg(point1: point1, point2: point1 + circleVelocity)
-    let line2 = LineSeg(point1: point2, point2: point2 + circleVelocity)
+    //let line1 = LineSeg(point1: point1, point2: point1 + circleVelocity)
+    //let line2 = LineSeg(point1: point2, point2: point2 + circleVelocity)
     
     var finalCircle = Circle(center: circle.center + circleVelocity, radius: circle.radius)
     
-    let collision = test(line, line1: line1) != nil || test(line, line1: line2) != nil
+    //let collision = test(line, line1: line1) != nil || test(line, line1: line2) != nil
     //let finalCircleCollide = finalCircle.center * lineNormal < circle.radius
+    let collision = finalCircle.center * lineNormal < circle.radius
     
     if collision /*|| finalCircleCollide*/ {
         //Projection a onto b: a dot b * b / mag(b)^2
