@@ -164,8 +164,6 @@ class GameViewController:UIViewController, MTKViewDelegate, HKWPlayerEventHandle
         
         //Create list of all enemies and place in billboard buffer, also place all other billboards
         
-        //player.rot += 0.05;
-        
         player.rot += Float(-self.touchDistance.x / 100.0) * 1.0 / 60.0;
         if player.rot > Float(M_PI) * 2.0 {
             player.rot -= Float(M_PI) * 2.0
@@ -254,18 +252,15 @@ class GameViewController:UIViewController, MTKViewDelegate, HKWPlayerEventHandle
     }
     
     func playCurrentIndex() {
-        
         HKWControlHandler.sharedInstance().stop()
         
-        let urlString = "../assets/effects/music/clair.wav"
-        print("URLString: \(urlString)")
-        let assetUrl = NSURL(string: urlString)
-        // or, let assetUrl = NSURL(string: urlString)
+        let assetUrl = NSBundle.mainBundle().URLForResource("clair", withExtension: "wav")
         
         let songName = "clair"
-        var musicDuration = 2.43
+        //var musicDuration = 2.43
         
         if HKWControlHandler.sharedInstance().playCAF(assetUrl, songName: songName, resumeFlag: false) {
+            
         }
     }
     
