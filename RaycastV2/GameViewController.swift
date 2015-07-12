@@ -54,8 +54,8 @@ class GameViewController:UIViewController, MTKViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         let view = self.view as! MTKView
+        
         view.delegate = self
         
         loadAssets()
