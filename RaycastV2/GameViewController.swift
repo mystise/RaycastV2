@@ -23,6 +23,17 @@ let vertexData:[Float] =
     1.0, -1.0, 0.0, 1.0,
 ]
 
+struct Player {
+    var posx: Float
+    var posy: Float
+    var fov: Float
+    var rot: Float
+    
+    func getData() -> [Float] {
+        return [self.posx, self.posy, self.fov, self.rot]
+    }
+}
+
 class GameViewController:UIViewController, MTKViewDelegate {
     let device: MTLDevice = MTLCreateSystemDefaultDevice()!
     
@@ -33,9 +44,13 @@ class GameViewController:UIViewController, MTKViewDelegate {
     var renderPipelineState: MTLRenderPipelineState! = nil
     var rayPipelineState: MTLComputePipelineState! = nil
     var vertexBuffer: MTLBuffer! = nil
+    var playerBuffer: MTLBuffer! = nil
     
     var computeTexOut: MTLTexture! = nil
     var computeSize = 64
+    var player: Player = Player(posx: 1.0, posy: 1.0, fov: 80.0, rot: 0.0)
+    var level: Level = level1()
+    var levelImage: MTLTexture! = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,6 +64,29 @@ class GameViewController:UIViewController, MTKViewDelegate {
     func loadAssets() {
         //Initialize players
         //Initialize level (Rasterize to image)
+        
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapContext = CGBitmapContextCreate(UnsafeMutablePointer<Void>(), self.level.size.width, self.level.size.height, 8, self.level.size.width * 4, colorSpace, CGImageAlphaInfo.NoneSkipLast.rawValue)!
+        CGContextSetAllowsAntialiasing(bitmapContext, false)
+        
+        let path = CGPathCreateMutable()
+        //CGPathMoveToPoint(outerPath, UnsafePointer<CGAffineTransform>(), 0.0, 0.0)
+        CGPathAddRect(path, UnsafePointer<CGAffineTransform>(), CGRect(x: 0.0, y: 0.0, width: Double(self.level.size.width - 1), height: Double(self.level.size.height - 1)))
+        for wall in level.walls {
+            CGPathMoveToPoint(path, UnsafePointer<CGAffineTransform>(), CGFloat(wall.point1.x), CGFloat(wall.point1.y))
+            CGPathAddLineToPoint(path, UnsafePointer<CGAffineTransform>(), CGFloat(wall.point2.x), CGFloat(wall.point2.y))
+        }
+        CGContextAddPath(bitmapContext, path)
+        CGContextSetStrokeColorWithColor(bitmapContext, UIColor.whiteColor().CGColor)
+        CGContextSetLineWidth(bitmapContext, 1.0)
+        CGContextStrokePath(bitmapContext)
+        
+        let texDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(.RGBA8Unorm, width: self.level.size.width, height: self.level.size.height, mipmapped: false)
+        self.levelImage = self.device.newTextureWithDescriptor(texDescriptor)
+        
+        let pixels = CGBitmapContextGetData(bitmapContext)
+        let region = MTLRegionMake2D(0, 0, self.level.size.width, self.level.size.height)
+        self.levelImage.replaceRegion(region, mipmapLevel: 0, withBytes: pixels, bytesPerRow: self.level.size.width * 4)
         
         let view = self.view as! MTKView
         
@@ -87,17 +125,27 @@ class GameViewController:UIViewController, MTKViewDelegate {
         
         vData.initializeFrom(vertexData)
         
+        let rayProgram = defaultLibrary.newFunctionWithName("raycast")!
+        
         do {
-            try self.rayPipelineState = self.device.newComputePipelineStateWithFunction(defaultLibrary.newFunctionWithName("raycast")!)
+            try self.rayPipelineState = self.device.newComputePipelineStateWithFunction(rayProgram)
         } catch let error {
             print("Failed to create ray pipeline state, error \(error)")
         }
+        
+        self.playerBuffer = self.device.newBufferWithLength(ConstantBufferSize, options: [])
+        self.playerBuffer.label = "uniforms"
     }
     
     func update() {
         //Move player, move enemies, do collision detection
         
         //Create list of all enemies and place in billboard buffer, also place all other billboards
+        
+        let playerData = playerBuffer.contents()
+        let playerMPData = UnsafeMutablePointer<Float>(playerData)
+        
+        playerMPData.initializeFrom(player.getData())
     }
     
     func drawInView(view: MTKView) {
@@ -110,7 +158,8 @@ class GameViewController:UIViewController, MTKViewDelegate {
         computeEncoder.label = "Compute"
         let computeTotal: MTLSize = MTLSizeMake(Int(self.size.width)/self.computeSize, 1, 1)
         computeEncoder.setComputePipelineState(self.rayPipelineState)
-        //computeEncoder.setBuffer(<#T##buffer: MTLBuffer?##MTLBuffer?#>, offset: <#T##Int#>, atIndex: <#T##Int#>)
+        computeEncoder.setBuffer(self.playerBuffer, offset: 0, atIndex: 0)
+        computeEncoder.setTexture(self.levelImage, atIndex: 0)
         computeEncoder.setTexture(self.computeTexOut, atIndex: 3)
         
         computeEncoder.dispatchThreadgroups(computeTotal, threadsPerThreadgroup: MTLSizeMake(self.computeSize, 1, 1))

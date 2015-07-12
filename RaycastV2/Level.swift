@@ -13,6 +13,11 @@ struct IRect {
     var point2: IVector
 }
 
+struct ISize {
+    var width: Int
+    var height: Int
+}
+
 struct ILineSeg {
     var point1: IVector
     var point2: IVector
@@ -24,7 +29,7 @@ struct IVector {
 }
 
 struct Level {
-    var size: IRect
+    var size: ISize
     var walls: [ILineSeg]
     //Wall image
     var enemies: [Enemy]

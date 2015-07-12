@@ -44,21 +44,20 @@ struct Billboard {
 };
 
 struct Player {
-    half2 pos;
-    half fov;
-    half rot;
+    float2 pos;
+    float fov;
+    float rot;
 };
 
-struct RaycastUniforms {
-    Player player;
-    uint billboardCount;
-};
-
-kernel void raycast(texture2d<uint, access::read> wallPositionTexture [[ texture(0) ]],
+kernel void raycast(texture2d<half, access::read> wallPositionTexture [[ texture(0) ]],
                     texture2d<half, access::read> wallTexture [[ texture(1) ]],
-                    constant RaycastUniforms *uniforms [[ buffer(0) ]],
-                    texture2d_array<half, access::read> billboardTextures [[ texture(2) ]],
+                    
+                    constant Player *player [[ buffer(0) ]],
+                    
                     constant Billboard *billboards [[ buffer(1) ]],
+                    constant uint *billboardCount [[ buffer(2) ]], //Single Uint, has to be a pointer to be a buffer
+                    texture2d_array<half, access::read> billboardTextures [[ texture(2) ]],
+                    
                     uint gid [[ thread_position_in_grid ]],
                     texture2d<half, access::write> outTexture [[ texture(3) ]]) {
     for (uint i = 0; i < outTexture.get_height(); i++) {
@@ -70,9 +69,36 @@ kernel void raycast(texture2d<uint, access::read> wallPositionTexture [[ texture
         }
         outTexture.write(color, uint2(gid, i));
     }
-    if (gid % 8 == 0) {
-        for (uint i = gid / 5; i < outTexture.get_height() - gid / 5; i++) {
+    float totalDistance = -1.0;
+    float2 position = player->pos;
+    int2 iposition = int2(position.x, position.y);
+    float playerRot = player->rot - player->fov * float(gid) / float(outTexture.get_width() - 1);
+    float2 rayDir = float2(cos(playerRot), sin(playerRot));
+    int2 displacement = int2(rayDir.x > 0 ? 1 : -1, rayDir.y > 0 ? 1 : -1);
+    
+    while (iposition.x < int(outTexture.get_width()) && iposition.y < int(outTexture.get_height()) && iposition.x >= 0 && iposition.y >= 0) {
+        half4 value = wallPositionTexture.read(uint2(iposition));
+        if (value.r > 0.5) {
+            totalDistance = distance_squared(float2(iposition), position);
+            break;
+        }
+        iposition += displacement;
+    }
+    
+    float scale = outTexture.get_height() / 2 / 2510.0;
+    if (totalDistance >= 0.0 && totalDistance < 2500.0) {
+        for (uint i = totalDistance * scale; i < outTexture.get_height() - totalDistance * scale; i++) {
             outTexture.write(half4(1.0, 0.0, 1.0, 1.0), uint2(gid, i));
         }
     }
+    
+    //march until collide
+    //Render wall
+    //march backwards until entity collide
+    //render entity
+    /*if (gid % 8 == 0) {
+        for (uint i = gid / 5; i < outTexture.get_height() - gid / 5; i++) {
+            outTexture.write(half4(1.0, 0.0, 1.0, 1.0), uint2(gid, i));
+        }
+    }*/
 }

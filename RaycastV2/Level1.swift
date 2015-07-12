@@ -9,7 +9,8 @@
 import Foundation
 
 func level1() -> Level {
-    var level = Level(size: IRect(point1: IVector(x: 0, y: 0), point2: IVector(x: 100, y: 75)), walls:[], enemies:[], spawn: IVector(x: 2, y: 2), exit: IRect(point1: IVector(x: 45, y: 45), point2: IVector(x: 50, y: 50)))
+    //var level = Level(size: IRect(point1: IVector(x: 0, y: 0), point2: IVector(x: 100, y: 75)), walls:[], enemies:[], spawn: IVector(x: 2, y: 2), exit: IRect(point1: IVector(x: 45, y: 45), point2: IVector(x: 50, y: 50)))
+    var level = Level(size: ISize(width: 50, height: 50), walls:[], enemies:[], spawn: IVector(x: 5, y: 5), exit: IRect(point1: IVector(x: 45, y: 45), point2: IVector(x: 50, y: 50)))
     
     level.walls = [ILineSeg(point1: IVector(x: 5, y: 0), point2: IVector(x: 10, y: 25)),
                    ILineSeg(point1: IVector(x: 10, y: 25), point2: IVector(x: 30, y: 30)),
