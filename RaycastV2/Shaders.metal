@@ -72,6 +72,7 @@ kernel void raycast(texture2d<half, access::read> wallPositionTexture [[ texture
     
     float rayRot = player->rot - player->fov * (float(gid)/float(outTexture.get_width() - 1) - 0.5);
     float2 rayVec = float2(cos(rayRot), sin(rayRot));
+    float rayRotMult = cos(abs(player->fov * (float(gid)/float(outTexture.get_width() - 1) - 0.5)));
     
     float distance = -1.0;
     
@@ -81,9 +82,9 @@ kernel void raycast(texture2d<half, access::read> wallPositionTexture [[ texture
     while (pos.x < outTexture.get_width() && pos.y < outTexture.get_height() && pos.x >= 0.0 && pos.y >= 0.0) {
         half4 color = wallPositionTexture.read(ipos);
         if (color.r > 0.8) {
-            float2 dist = player->pos - pos;
+            //float2 dist = player->pos - pos;
             
-            distance = sqrt(length(player->pos - pos)); //abs(dist.x) + abs(dist.y); //Need slower falloff, perhaps sqrt again? Or x + y distance
+            distance = length(player->pos - pos) * rayRotMult; //abs(dist.x) + abs(dist.y); //Need slower falloff, perhaps sqrt again? Or x + y distance
             break;
         }
         
@@ -143,10 +144,17 @@ kernel void raycast(texture2d<half, access::read> wallPositionTexture [[ texture
         }
     }
     
-    float scale = 1.0;
+    float scale = 500.0;
     
-    for (uint i = distance*scale; i < outTexture.get_height() - distance*scale; i++) {
-        outTexture.write(half4(1.0, 0.0, 0.0, 1.0), uint2(gid, i)); //TODO: Sample texture.
+    uint xTex = (ipos.x + ipos.y)*10 % wallTexture.get_width();
+    float wallHeight = scale/distance*5.0;
+    float start = (outTexture.get_height() - wallHeight)/2.0;
+    float end = (outTexture.get_height() + wallHeight)/2.0;
+    
+    for (uint i = start; i < end; i++) {
+        //uint yTex = uint((i-distance*scale)*wallTexture.get_height()/outTexture.get_height()) % wallTexture.get_height();
+        uint yTex = 2;
+        outTexture.write(wallTexture.read(uint2(xTex, yTex)), uint2(gid, i));
     }
     /*if (length(pos - float2(ipos)) > 1.0 || flag) {
         for (uint i = 0; i < outTexture.get_height(); i++) {

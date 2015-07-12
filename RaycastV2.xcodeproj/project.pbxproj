@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		494A9E051B52D5AD0097EB96 /* wall.png in Resources */ = {isa = PBXBuildFile; fileRef = 494A9E041B52D5AD0097EB96 /* wall.png */; };
+		494A9E071B52D5CB0097EB96 /* wall_test.png in Resources */ = {isa = PBXBuildFile; fileRef = 494A9E061B52D5CB0097EB96 /* wall_test.png */; };
 		49C832FE1B50CF4B001658DD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C832FD1B50CF4B001658DD /* AppDelegate.swift */; };
 		49C833001B50CF4B001658DD /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C832FF1B50CF4B001658DD /* GameViewController.swift */; };
 		49C833021B50CF4B001658DD /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 49C833011B50CF4B001658DD /* Shaders.metal */; };
@@ -41,6 +43,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		494A9E041B52D5AD0097EB96 /* wall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wall.png; sourceTree = "<group>"; };
+		494A9E061B52D5CB0097EB96 /* wall_test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wall_test.png; sourceTree = "<group>"; };
 		49C832FA1B50CF4B001658DD /* RaycastV2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RaycastV2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		49C832FD1B50CF4B001658DD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		49C832FF1B50CF4B001658DD /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
@@ -131,6 +135,8 @@
 				49C8332D1B50DE22001658DD /* Collisions.swift */,
 				49C833311B51A2F2001658DD /* Level.swift */,
 				6A5450741B51A9E4001F3BCB /* Level1.swift */,
+				494A9E061B52D5CB0097EB96 /* wall_test.png */,
+				494A9E041B52D5AD0097EB96 /* wall.png */,
 			);
 			path = RaycastV2;
 			sourceTree = "<group>";
@@ -291,9 +297,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				49C8330A1B50CF4B001658DD /* LaunchScreen.storyboard in Resources */,
+				494A9E051B52D5AD0097EB96 /* wall.png in Resources */,
 				49C833071B50CF4B001658DD /* Assets.xcassets in Resources */,
 				49C833051B50CF4B001658DD /* Main.storyboard in Resources */,
 				6A68946E1B519CAA00931C08 /* License-iOS-Omni.pdf in Resources */,
+				494A9E071B52D5CB0097EB96 /* wall_test.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

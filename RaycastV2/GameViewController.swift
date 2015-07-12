@@ -51,12 +51,17 @@ class GameViewController:UIViewController, MTKViewDelegate {
     var player: Player = Player(posx: 0.0, posy: 0.0, fov: 0.78, rot: 0.0)
     var level: Level = level1()
     var levelImage: MTLTexture! = nil
+    var wallImage: MTLTexture! = nil
+    
+    var touchDistance: CGPoint = CGPointZero
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         let view = self.view as! MTKView
         view.delegate = self
+        
+        self.view.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: "pan:"))
         
         loadAssets()
     }
@@ -88,6 +93,20 @@ class GameViewController:UIViewController, MTKViewDelegate {
         let pixels = CGBitmapContextGetData(bitmapContext)
         let region = MTLRegionMake2D(0, 0, self.level.size.width, self.level.size.height)
         self.levelImage.replaceRegion(region, mipmapLevel: 0, withBytes: pixels, bytesPerRow: self.level.size.width * 4)
+        
+        let wallImage = UIImage(named: "wall_test.png")!
+        
+        let wallBitmapContext = CGBitmapContextCreate(UnsafeMutablePointer<Void>(), Int(wallImage.size.width), Int(wallImage.size.height), 8, Int(wallImage.size.width) * 4, colorSpace, CGImageAlphaInfo.NoneSkipLast.rawValue)!
+        CGContextSetAllowsAntialiasing(bitmapContext, false)
+        
+        CGContextDrawImage(wallBitmapContext, CGRectMake(0.0, 0.0, wallImage.size.width, wallImage.size.height), wallImage.CGImage)
+        
+        let wallTexDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(.RGBA8Unorm, width: Int(wallImage.size.width), height: Int(wallImage.size.height), mipmapped: false)
+        self.wallImage = self.device.newTextureWithDescriptor(wallTexDescriptor)
+        
+        let wallPixels = CGBitmapContextGetData(wallBitmapContext)
+        let wallRegion = MTLRegionMake2D(0, 0, Int(wallImage.size.width), Int(wallImage.size.height))
+        self.wallImage.replaceRegion(wallRegion, mipmapLevel: 0, withBytes: wallPixels, bytesPerRow: Int(wallImage.size.width) * 4)
         
         let view = self.view as! MTKView
         
@@ -143,7 +162,18 @@ class GameViewController:UIViewController, MTKViewDelegate {
         
         //Create list of all enemies and place in billboard buffer, also place all other billboards
         
-        player.rot += 0.05;
+        //player.rot += 0.05;
+        
+        player.rot += Float(-self.touchDistance.x / 100.0) * 1.0 / 60.0;
+        if player.rot > Float(M_PI) * 2.0 {
+            player.rot -= Float(M_PI) * 2.0
+        }
+        if player.rot < 0.0 {
+            player.rot += Float(M_PI) * 2.0
+        }
+        player.posx += cos(player.rot) * Float(-self.touchDistance.y / 50.0) * 1.0 / 60.0
+        player.posy += sin(player.rot) * Float(-self.touchDistance.y / 50.0) * 1.0 / 60.0
+        print("Rot: \(player.rot) X: \(player.posx) Y: \(player.posy)")
         
         let playerData = playerBuffer.contents()
         let playerMPData = UnsafeMutablePointer<Float>(playerData)
@@ -163,6 +193,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
         computeEncoder.setComputePipelineState(self.rayPipelineState)
         computeEncoder.setBuffer(self.playerBuffer, offset: 0, atIndex: 0)
         computeEncoder.setTexture(self.levelImage, atIndex: 0)
+        computeEncoder.setTexture(self.wallImage, atIndex: 1)
         computeEncoder.setTexture(self.computeTexOut, atIndex: 3)
         
         computeEncoder.dispatchThreadgroups(computeTotal, threadsPerThreadgroup: MTLSizeMake(self.computeSize, 1, 1))
@@ -199,5 +230,14 @@ class GameViewController:UIViewController, MTKViewDelegate {
         //let texDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(.RGBA8Unorm, width: Int(self.size.width), height: Int(self.size.height), mipmapped: false)
         let texDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(.RGBA8Unorm, width: 640, height: 480, mipmapped: false)
         self.computeTexOut = self.device.newTextureWithDescriptor(texDescriptor)
+    }
+    
+    func pan(pan: UIPanGestureRecognizer) {
+        switch pan.state {
+        case .Began: break
+        case .Changed: self.touchDistance = pan.translationInView(self.view)
+        case .Ended, .Cancelled: self.touchDistance = CGPointZero
+        default: break
+        }
     }
 }
