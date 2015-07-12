@@ -172,7 +172,16 @@ class GameViewController:UIViewController, MTKViewDelegate {
             player.rot += Float(M_PI) * 2.0
         }
         
-        //let vel = Vector(x: cos(Double(player.rot)) * Double(-self.touchDistance.y / 25.0) * 1.0 / 60.0, y: sin(Double(player.rot)) * Double(-self.touchDistance.y / 25.0) * 1.0 / 60.0)
+        var vel = Vector(x: cos(Double(player.rot)) * Double(-self.touchDistance.y / 25.0) * 1.0 / 60.0, y: sin(Double(player.rot)) * Double(-self.touchDistance.y / 25.0) * 1.0 / 60.0)
+        let playerCircle = Circle(center: Vector(x: Double(self.player.posx), y: Double(self.level.size.height) - Double(self.player.posy)), radius: 1.0)
+        
+        for wall in self.level.walls {
+            let newWall = LineSeg(point1: Vector(x: Double(wall.point1.x), y: Double(wall.point1.y)), point2: Vector(x: Double(wall.point2.x), y: Double(wall.point2.y)))
+            vel = handleCollision(playerCircle, circleVelocity: vel, line: newWall)
+        }
+        
+        player.posx += Float(vel.x)
+        player.posy += Float(vel.y)
         
         print("Rot: \(player.rot) X: \(player.posx) Y: \(player.posy)")
         
@@ -215,7 +224,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
         
         renderEncoder.setRenderPipelineState(self.renderPipelineState)
         renderEncoder.setVertexBuffer(self.vertexBuffer, offset: 0, atIndex: 0)
-        renderEncoder.setFragmentTexture(self.levelImage, atIndex: 0)
+        renderEncoder.setFragmentTexture(self.computeTexOut, atIndex: 0)
         renderEncoder.drawPrimitives(.Triangle, vertexStart: 0, vertexCount: 6, instanceCount: 1)
         
         renderEncoder.endEncoding()
