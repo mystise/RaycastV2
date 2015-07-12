@@ -34,7 +34,7 @@ struct Player {
     }
 }
 
-class GameViewController:UIViewController, MTKViewDelegate, HKWPlayerEventHandlerDelegate {
+class GameViewController:UIViewController, MTKViewDelegate, HKWPlayerEventHandlerDelegate, HKWDeviceEventHandlerDelegate {
     let device: MTLDevice = MTLCreateSystemDefaultDevice()!
     
     let g_licenseKey = "2FA8-2FD6-C27D-47E8-A256-D011-3751-2BD6"
@@ -89,8 +89,17 @@ class GameViewController:UIViewController, MTKViewDelegate, HKWPlayerEventHandle
                 if self.g_alert != nil {
                     self.g_alert.dismissViewControllerAnimated(true, completion: nil)
                 }
+                HKWDeviceEventHandlerSingleton.sharedInstance().delegate = self
+                
+                HKWControlHandler.sharedInstance().startRefreshDeviceInfo()
+                
+                self.playCurrentIndex()
             })
         }
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        
     }
     
     func loadAssets() {
@@ -289,7 +298,24 @@ class GameViewController:UIViewController, MTKViewDelegate, HKWPlayerEventHandle
         }
     }
     
+    func hkwDeviceStateUpdated(deviceid: Int64, withReason reason: Int) {
+        print("hkwDeviceStateUpdated")
+        
+        let deviceInfo = HKWControlHandler.sharedInstance().getDeviceInfoById(deviceid)
+        if !deviceInfo.active {
+            HKWControlHandler.sharedInstance().addDeviceToSession(deviceInfo.deviceId)
+        }
+    }
+    
+    func hkwErrorOccurred(errorCode: Int, withErrorMessage errorMesg: String!) {
+        print("Error occured: errorCode:\(errorCode), mesg:\(errorMesg)")
+        g_alert = UIAlertController(title: "Error", message: errorMesg, preferredStyle: .Alert)
+        g_alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+        self.presentViewController(g_alert, animated: true, completion: nil)
+    }
+    
     func hkwPlayEnded() {
         HKWControlHandler.sharedInstance().stop()
+        self.playCurrentIndex()
     }
 }
