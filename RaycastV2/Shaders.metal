@@ -71,10 +71,9 @@ kernel void raycast(texture2d<half, access::read> wallPositionTexture [[ texture
     }
     float totalDistance = -1.0;
     float2 position = player->pos;
-    int2 iposition = int2(position.x, position.y);
+    int2 iposition = int2(position);
     float playerRot = player->rot - player->fov * float(gid) / float(outTexture.get_width() - 1);
     float2 rayDir = float2(cos(playerRot), sin(playerRot));
-    int2 displacement = int2(rayDir.x > 0 ? 1 : -1, rayDir.y > 0 ? 1 : -1);
     
     while (iposition.x < int(outTexture.get_width()) && iposition.y < int(outTexture.get_height()) && iposition.x >= 0 && iposition.y >= 0) {
         half4 value = wallPositionTexture.read(uint2(iposition));
@@ -82,11 +81,15 @@ kernel void raycast(texture2d<half, access::read> wallPositionTexture [[ texture
             totalDistance = distance_squared(float2(iposition), position);
             break;
         }
+        
+        
+        int2 displacement = int2(rayDir.x > 0 ? 1 : -1, rayDir.y > 0 ? 1 : -1);
+        
         iposition += displacement;
     }
     
-    float scale = outTexture.get_height() / 2 / 2510.0;
-    if (totalDistance >= 0.0 && totalDistance < 2500.0) {
+    float scale = 1.0; //outTexture.get_height() / 2 / 2510.0;
+    if (totalDistance >= 0.0) {
         for (uint i = totalDistance * scale; i < outTexture.get_height() - totalDistance * scale; i++) {
             outTexture.write(half4(1.0, 0.0, 1.0, 1.0), uint2(gid, i));
         }
