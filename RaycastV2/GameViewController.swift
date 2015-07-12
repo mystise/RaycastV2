@@ -171,8 +171,9 @@ class GameViewController:UIViewController, MTKViewDelegate {
         if player.rot < 0.0 {
             player.rot += Float(M_PI) * 2.0
         }
-        player.posx += cos(player.rot) * Float(-self.touchDistance.y / 25.0) * 1.0 / 60.0
-        player.posy += sin(player.rot) * Float(-self.touchDistance.y / 25.0) * 1.0 / 60.0
+        
+        //let vel = Vector(x: cos(Double(player.rot)) * Double(-self.touchDistance.y / 25.0) * 1.0 / 60.0, y: sin(Double(player.rot)) * Double(-self.touchDistance.y / 25.0) * 1.0 / 60.0)
+        
         print("Rot: \(player.rot) X: \(player.posx) Y: \(player.posy)")
         
         let playerData = playerBuffer.contents()
@@ -214,7 +215,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
         
         renderEncoder.setRenderPipelineState(self.renderPipelineState)
         renderEncoder.setVertexBuffer(self.vertexBuffer, offset: 0, atIndex: 0)
-        renderEncoder.setFragmentTexture(self.computeTexOut, atIndex: 0)
+        renderEncoder.setFragmentTexture(self.levelImage, atIndex: 0)
         renderEncoder.drawPrimitives(.Triangle, vertexStart: 0, vertexCount: 6, instanceCount: 1)
         
         renderEncoder.endEncoding()
