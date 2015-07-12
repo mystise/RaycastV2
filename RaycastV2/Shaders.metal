@@ -85,8 +85,8 @@ kernel void raycast(texture2d<half, access::read> wallPositionTexture [[ texture
         iposition += displacement;
     }
     
-    float scale = outTexture.get_height() / 2 / 50.0;
-    if (totalDistance >= 0.0) {
+    float scale = outTexture.get_height() / 2 / 2510.0;
+    if (totalDistance >= 0.0 && totalDistance < 2500.0) {
         for (uint i = totalDistance * scale; i < outTexture.get_height() - totalDistance * scale; i++) {
             outTexture.write(half4(1.0, 0.0, 1.0, 1.0), uint2(gid, i));
         }
