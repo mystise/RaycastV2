@@ -47,8 +47,8 @@ class GameViewController:UIViewController, MTKViewDelegate {
     var playerBuffer: MTLBuffer! = nil
     
     var computeTexOut: MTLTexture! = nil
-    var computeSize = 64
-    var player: Player = Player(posx: 0.0, posy: 0.0, fov: 80.0, rot: 0.0)
+    var computeSize = 32
+    var player: Player = Player(posx: 0.0, posy: 0.0, fov: 0.78, rot: 0.0)
     var level: Level = level1()
     var levelImage: MTLTexture! = nil
     
@@ -62,18 +62,16 @@ class GameViewController:UIViewController, MTKViewDelegate {
     }
     
     func loadAssets() {
-        //Initialize players
-        //Initialize level (Rasterize to image)
+        //Initialize enemies and billboards
         
-        self.player.posx = Float(self.level.spawn.x)
-        self.player.posy = Float(self.level.spawn.y)
+        self.player.posx = Float(self.level.spawn.x) + 0.5
+        self.player.posy = Float(self.level.spawn.y) + 0.5
         
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapContext = CGBitmapContextCreate(UnsafeMutablePointer<Void>(), self.level.size.width, self.level.size.height, 8, self.level.size.width * 4, colorSpace, CGImageAlphaInfo.NoneSkipLast.rawValue)!
         CGContextSetAllowsAntialiasing(bitmapContext, false)
         
         let path = CGPathCreateMutable()
-        //CGPathMoveToPoint(outerPath, UnsafePointer<CGAffineTransform>(), 0.0, 0.0)
         CGPathAddRect(path, UnsafePointer<CGAffineTransform>(), CGRect(x: 0.5, y: 0.5, width: Double(self.level.size.width) - 1.5, height: Double(self.level.size.height) - 1.5))
         for wall in level.walls {
             CGPathMoveToPoint(path, UnsafePointer<CGAffineTransform>(), CGFloat(wall.point1.x) + 0.5, CGFloat(wall.point1.y) + 0.5)
@@ -145,6 +143,8 @@ class GameViewController:UIViewController, MTKViewDelegate {
         
         //Create list of all enemies and place in billboard buffer, also place all other billboards
         
+        player.rot += 0.05;
+        
         let playerData = playerBuffer.contents()
         let playerMPData = UnsafeMutablePointer<Float>(playerData)
         
@@ -159,7 +159,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
         
         let computeEncoder = commandBuffer.computeCommandEncoder()
         computeEncoder.label = "Compute"
-        let computeTotal: MTLSize = MTLSizeMake(Int(self.size.width)/self.computeSize, 1, 1)
+        let computeTotal: MTLSize = MTLSizeMake(self.computeTexOut.width/self.computeSize, 1, 1)
         computeEncoder.setComputePipelineState(self.rayPipelineState)
         computeEncoder.setBuffer(self.playerBuffer, offset: 0, atIndex: 0)
         computeEncoder.setTexture(self.levelImage, atIndex: 0)
@@ -183,7 +183,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
         
         renderEncoder.setRenderPipelineState(self.renderPipelineState)
         renderEncoder.setVertexBuffer(self.vertexBuffer, offset: 0, atIndex: 0)
-        renderEncoder.setFragmentTexture(self.levelImage, atIndex: 0)
+        renderEncoder.setFragmentTexture(self.computeTexOut, atIndex: 0)
         renderEncoder.drawPrimitives(.Triangle, vertexStart: 0, vertexCount: 6, instanceCount: 1)
         
         renderEncoder.endEncoding()
@@ -196,7 +196,8 @@ class GameViewController:UIViewController, MTKViewDelegate {
     func view(view: MTKView, willLayoutWithSize size: CGSize) {
         self.size = size
         
-        let texDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(.RGBA8Unorm, width: Int(self.size.width), height: Int(self.size.height), mipmapped: false)
+        //let texDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(.RGBA8Unorm, width: Int(self.size.width), height: Int(self.size.height), mipmapped: false)
+        let texDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(.RGBA8Unorm, width: 640, height: 480, mipmapped: false)
         self.computeTexOut = self.device.newTextureWithDescriptor(texDescriptor)
     }
 }

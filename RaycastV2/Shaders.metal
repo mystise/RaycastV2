@@ -69,31 +69,90 @@ kernel void raycast(texture2d<half, access::read> wallPositionTexture [[ texture
         }
         outTexture.write(color, uint2(gid, i));
     }
-    float totalDistance = -1.0;
-    float2 position = player->pos;
-    int2 iposition = int2(position);
-    float playerRot = player->rot - player->fov * float(gid) / float(outTexture.get_width() - 1);
-    float2 rayDir = float2(cos(playerRot), sin(playerRot));
     
-    while (iposition.x < int(outTexture.get_width()) && iposition.y < int(outTexture.get_height()) && iposition.x >= 0 && iposition.y >= 0) {
-        half4 value = wallPositionTexture.read(uint2(iposition));
-        if (value.r > 0.5) {
-            totalDistance = distance_squared(float2(iposition), position);
+    float rayRot = player->rot - player->fov * (float(gid)/float(outTexture.get_width() - 1) - 0.5);
+    float2 rayVec = float2(cos(rayRot), sin(rayRot));
+    
+    float distance = -1.0;
+    
+    float2 pos = player->pos;
+    uint2 ipos = uint2(pos);
+    
+    while (pos.x < outTexture.get_width() && pos.y < outTexture.get_height() && pos.x >= 0.0 && pos.y >= 0.0) {
+        half4 color = wallPositionTexture.read(ipos);
+        if (color.r > 0.8) {
+            float2 dist = player->pos - pos;
+            
+            distance = sqrt(length(player->pos - pos)); //abs(dist.x) + abs(dist.y); //Need slower falloff, perhaps sqrt again? Or x + y distance
             break;
         }
         
+        float dx = (pos.x - ipos.x);
+        if (rayVec.x > 0.0) {
+            dx = 1.0 - dx;
+        } else if (rayVec.x < 0.0) {
+            dx = -dx;
+        }
+        if (rayVec.x != 0.0) {
+            dx /= rayVec.x;
+        } else {
+            dx = 100.0;
+        }
         
-        int2 displacement = int2(rayDir.x > 0 ? 1 : -1, rayDir.y > 0 ? 1 : -1);
+        float dy = (pos.y - ipos.y);
+        if (rayVec.y > 0.0) {
+            dy = 1.0 - dy;
+        } else if (rayVec.y < 0.0) {
+            dy = -dy;
+        }
+        if (rayVec.y != 0.0) {
+            dy /= rayVec.y;
+        } else {
+            dy = 100.0;
+        }
         
-        iposition += displacement;
-    }
-    
-    float scale = 1.0; //outTexture.get_height() / 2 / 2510.0;
-    if (totalDistance >= 0.0) {
-        for (uint i = totalDistance * scale; i < outTexture.get_height() - totalDistance * scale; i++) {
-            outTexture.write(half4(1.0, 0.0, 1.0, 1.0), uint2(gid, i));
+        if (dx < dy) {
+            pos += rayVec * dx;
+            //ipos = uint2(pos);
+            if (rayVec.x > 0.0) {
+                ipos.x += 1;
+            } else if (rayVec.x < 0.0) {
+                ipos.x -= 1;
+            }
+        } else if (dy < dx) {
+            pos += rayVec * dy;
+            //ipos = uint2(pos);
+            if (rayVec.y > 0.0) {
+                ipos.y += 1;
+            } else if (rayVec.y < 0.0) {
+                ipos.y -= 1;
+            }
+        } else {
+            pos += rayVec * dx;
+            //ipos = uint2(pos);
+            if (rayVec.x > 0.0) {
+                ipos.x += 1;
+            } else if (rayVec.x < 0.0) {
+                ipos.x -= 1;
+            }
+            if (rayVec.y > 0.0) {
+                ipos.y += 1;
+            } else if (rayVec.y < 0.0) {
+                ipos.y -= 1;
+            }
         }
     }
+    
+    float scale = 1.0;
+    
+    for (uint i = distance*scale; i < outTexture.get_height() - distance*scale; i++) {
+        outTexture.write(half4(1.0, 0.0, 0.0, 1.0), uint2(gid, i)); //TODO: Sample texture.
+    }
+    /*if (length(pos - float2(ipos)) > 1.0 || flag) {
+        for (uint i = 0; i < outTexture.get_height(); i++) {
+            outTexture.write(half4(1.0, 0.0, 0.0, 1.0), uint2(gid, i));
+        }
+    }*/
     
     //march until collide
     //Render wall
