@@ -47,7 +47,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
     var playerBuffer: MTLBuffer! = nil
     
     var computeTexOut: MTLTexture! = nil
-    var computeSize = 64
+    var computeSize = 32
     var player: Player = Player(posx: 0.0, posy: 0.0, fov: 0.78, rot: 0.0)
     var level: Level = level1()
     var levelImage: MTLTexture! = nil
@@ -143,7 +143,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
         
         //Create list of all enemies and place in billboard buffer, also place all other billboards
         
-        //player.rot += 0.05;
+        player.rot += 0.05;
         
         let playerData = playerBuffer.contents()
         let playerMPData = UnsafeMutablePointer<Float>(playerData)
@@ -159,7 +159,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
         
         let computeEncoder = commandBuffer.computeCommandEncoder()
         computeEncoder.label = "Compute"
-        let computeTotal: MTLSize = MTLSizeMake(Int(self.size.width)/self.computeSize, 1, 1)
+        let computeTotal: MTLSize = MTLSizeMake(self.computeTexOut.width/self.computeSize, 1, 1)
         computeEncoder.setComputePipelineState(self.rayPipelineState)
         computeEncoder.setBuffer(self.playerBuffer, offset: 0, atIndex: 0)
         computeEncoder.setTexture(self.levelImage, atIndex: 0)
@@ -196,7 +196,8 @@ class GameViewController:UIViewController, MTKViewDelegate {
     func view(view: MTKView, willLayoutWithSize size: CGSize) {
         self.size = size
         
-        let texDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(.RGBA8Unorm, width: Int(self.size.width), height: Int(self.size.height), mipmapped: false)
+        //let texDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(.RGBA8Unorm, width: Int(self.size.width), height: Int(self.size.height), mipmapped: false)
+        let texDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(.RGBA8Unorm, width: 640, height: 480, mipmapped: false)
         self.computeTexOut = self.device.newTextureWithDescriptor(texDescriptor)
     }
 }
