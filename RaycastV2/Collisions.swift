@@ -233,12 +233,21 @@ func handleCollision(var circle: Circle, circleVelocity: Vector, var line: LineS
     
     //let collision = test(line, line1: line1) != nil || test(line, line1: line2) != nil
     //let finalCircleCollide = finalCircle.center * lineNormal < circle.radius
-    let collision = finalCircle.center * lineNormal < circle.radius
     
-    if collision /*|| finalCircleCollide*/ {
+    var finalNormal = Vector(x: line.point2.y, y: -line.point2.x).norm()
+    if finalNormal * finalCircle.center > 0.0 { //Ensure the normal is facing away from us
+        finalNormal = -finalNormal
+    }
+    
+    //let collision = finalCircle.center * finalNormal < circle.radius
+    let line2 = LineSeg(point1: finalCircle.center - finalNormal * circle.radius, point2: finalCircle.center + finalNormal * circle.radius)
+    let collision2 = test(line2, line1: line) != nil
+    
+    if collision2 {
+        print("Collision")
         //Projection a onto b: a dot b * b / mag(b)^2
-        let moveVec = lineNormal * (finalCircle.center * lineNormal + circle.radius)
-        finalCircle.center += moveVec
+        let moveVec = finalNormal * (circle.radius + finalCircle.center * finalNormal)
+        finalCircle.center -= moveVec
         return finalCircle.center - circle.center
     }
     
