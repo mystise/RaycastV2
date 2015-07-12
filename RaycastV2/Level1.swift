@@ -48,6 +48,6 @@ func level1() -> Level {
                               zone: IRect(point1: IVector(x: 6, y: 21), point2: IVector(x: 8, y: 23)),
                               row: 1)]
     
-    //let level = Level(size: ISize(width: 10, height: 10), walls:[], enemies:[], spawn: IVector(x: 5, y: 5), exit: IRect(point1: IVector(x: 45, y: 45), point2: IVector(x: 50, y: 50)))
+    //let level = Level(size: ISize(width: 20, height: 20), walls:[], enemies:[], spawn: IVector(x: 5, y: 5), exit: IRect(point1: IVector(x: 45, y: 45), point2: IVector(x: 50, y: 50)))
     return level
 }
