@@ -8,24 +8,39 @@
 
 import Foundation
 
+struct IRect {
+    var point1: IVector
+    var point2: IVector
+}
+
+struct ILineSeg {
+    var point1: IVector
+    var point2: IVector
+}
+
+struct IVector {
+    var x: Int
+    var y: Int
+}
+
 struct Level {
-    var size: Rect
-    var walls: [LineSeg]
+    var size: IRect
+    var walls: [ILineSeg]
     //Wall image
     var enemies: [Enemy]
     
-    var spawn: Vector
-    var exit: Rect
+    var spawn: IVector
+    var exit: IRect
 }
 
 struct Enemy {
     var waypoints: [Waypoint]
-    var zone: Rect //Zone that spawns enemy
+    var zone: IRect //Zone that spawns enemy
     var row: Int //-1 for no row bonus
 }
 
 struct Waypoint {
-    var pos: Vector
+    var pos: IVector
     var speed: Double //Speed to walk to waypoint
     var shots: [Shot]
 }

@@ -32,7 +32,7 @@ fragment half4 bgFragment(VertexOut inFrag [[ stage_in ]]) {
     //return half4(inFrag.position.x/1024.0, inFrag.position.y/768.0, 0.0, 1.0);
 };
 
-fragment half4 fgFragment(VertexOut inFrag [[ stage_in ]], texture2d<half> tex2D [[ texture(0) ]]) {
+fragment half4 fragmentTransform(VertexOut inFrag [[ stage_in ]], texture2d<half> tex2D [[ texture(0) ]]) {
     constexpr sampler quadSampler;
     return tex2D.sample(quadSampler, inFrag.texCoord);
 };
@@ -61,19 +61,18 @@ kernel void raycast(texture2d<uint, access::read> wallPositionTexture [[ texture
                     constant Billboard *billboards [[ buffer(1) ]],
                     uint gid [[ thread_position_in_grid ]],
                     texture2d<half, access::write> outTexture [[ texture(3) ]]) {
-    if (gid % 8 == 0) {
-        for (uint i = 0; i < outTexture.get_height(); i++) {
-            outTexture.write(half4(1.0, 0.0, 1.0, 1.0), uint2(gid, i));
+    for (uint i = 0; i < outTexture.get_height(); i++) {
+        half4 color;
+        if(i < outTexture.get_height() / 2) {
+            color = half4(float(0xCC) / 255.0, float(0xCC) / 255.0, float(0xCC) / 255.0, 1.0);
+        } else {
+            color = half4(float(0x2D) / 255.0, float(0x48) / 255.0, float(0x92) / 255.0, 1.0);
         }
-    } else {
-        for (uint i = 0; i < outTexture.get_height(); i++) {
-            half4 color;
-            if(i < outTexture.get_height() / 2) {
-                color = half4(float(0xCC) / 255.0, float(0xCC) / 255.0, float(0xCC) / 255.0, 1.0);
-            } else {
-                color = half4(float(0x2D) / 255.0, float(0x48) / 255.0, float(0x92) / 255.0, 1.0);
-            }
-            outTexture.write(color, uint2(gid, i));
+        outTexture.write(color, uint2(gid, i));
+    }
+    if (gid % 8 == 0) {
+        for (uint i = gid / 5; i < outTexture.get_height() - gid / 5; i++) {
+            outTexture.write(half4(1.0, 0.0, 1.0, 1.0), uint2(gid, i));
         }
     }
 }

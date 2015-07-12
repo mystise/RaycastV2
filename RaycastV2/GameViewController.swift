@@ -30,13 +30,12 @@ class GameViewController:UIViewController, MTKViewDelegate {
     var renderPassDescriptor: MTLRenderPassDescriptor! = nil
     
     var commandQueue: MTLCommandQueue! = nil
-    var bgPipelineState: MTLRenderPipelineState! = nil
-    var fgPipelineState: MTLRenderPipelineState! = nil
+    var renderPipelineState: MTLRenderPipelineState! = nil
     var rayPipelineState: MTLComputePipelineState! = nil
     var vertexBuffer: MTLBuffer! = nil
     
     var computeTexOut: MTLTexture! = nil
-    var computeSize: MTLSize = MTLSizeMake(64, 1, 1)
+    var computeSize = 64
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,45 +53,26 @@ class GameViewController:UIViewController, MTKViewDelegate {
         let view = self.view as! MTKView
         
         view.sampleCount = 1
-        let metalLayer = view.layer as! CAMetalLayer
-        metalLayer.framebufferOnly = false
+        //let metalLayer = view.layer as! CAMetalLayer
+        //metalLayer.framebufferOnly = false
         
         self.commandQueue = device.newCommandQueue()
         self.commandQueue.label = "main command queue"
         
         let defaultLibrary = self.device.newDefaultLibrary()!
-        let bgFragmentProgram = defaultLibrary.newFunctionWithName("bgFragment")!
-        let fgFragmentProgram = defaultLibrary.newFunctionWithName("fgFragment")!
+        let fragmentProgram = defaultLibrary.newFunctionWithName("fragmentTransform")!
         let vertexProgram = defaultLibrary.newFunctionWithName("vertexTransform")!
         
-        let bgPipelineStateDescriptor = MTLRenderPipelineDescriptor()
-        bgPipelineStateDescriptor.vertexFunction = vertexProgram
-        bgPipelineStateDescriptor.fragmentFunction = bgFragmentProgram
-        bgPipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat
-        bgPipelineStateDescriptor.sampleCount = view.sampleCount
+        let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
+        pipelineStateDescriptor.vertexFunction = vertexProgram
+        pipelineStateDescriptor.fragmentFunction = fragmentProgram
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat
+        pipelineStateDescriptor.sampleCount = view.sampleCount
         
         do {
-            try self.bgPipelineState = self.device.newRenderPipelineStateWithDescriptor(bgPipelineStateDescriptor)
+            try self.renderPipelineState = self.device.newRenderPipelineStateWithDescriptor(pipelineStateDescriptor)
         } catch let error {
             print("Failed to create pipeline state, error \(error)")
-        }
-        
-        let fgPipelineStateDescriptor = MTLRenderPipelineDescriptor()
-        fgPipelineStateDescriptor.vertexFunction = vertexProgram
-        fgPipelineStateDescriptor.fragmentFunction = fgFragmentProgram
-        fgPipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat
-        fgPipelineStateDescriptor.sampleCount = view.sampleCount
-        
-        do {
-            try self.bgPipelineState = self.device.newRenderPipelineStateWithDescriptor(fgPipelineStateDescriptor)
-        } catch let error {
-            print("Failed to create pipeline state, error \(error)")
-        }
-        
-        do {
-            try self.rayPipelineState = self.device.newComputePipelineStateWithFunction(defaultLibrary.newFunctionWithName("raycast")!)
-        } catch let error {
-            print("Failed to create ray pipeline state, error \(error)")
         }
         
         self.vertexBuffer = self.device.newBufferWithLength(ConstantBufferSize, options: [])
@@ -106,6 +86,12 @@ class GameViewController:UIViewController, MTKViewDelegate {
         let vData = UnsafeMutablePointer<Float>(pData)
         
         vData.initializeFrom(vertexData)
+        
+        do {
+            try self.rayPipelineState = self.device.newComputePipelineStateWithFunction(defaultLibrary.newFunctionWithName("raycast")!)
+        } catch let error {
+            print("Failed to create ray pipeline state, error \(error)")
+        }
     }
     
     func update() {
@@ -120,37 +106,35 @@ class GameViewController:UIViewController, MTKViewDelegate {
         let commandBuffer = commandQueue.commandBuffer()
         commandBuffer.label = "Frame command buffer"
         
-        let drawable = view.currentDrawable!
-        let bgAttach = self.renderPassDescriptor.colorAttachments[0] as MTLRenderPassColorAttachmentDescriptor
-        bgAttach.texture = drawable.texture
-        
-        let bgRenderEncoder = commandBuffer.renderCommandEncoderWithDescriptor(self.renderPassDescriptor)
-        bgRenderEncoder.label = "Screen clear"
-        
-        bgRenderEncoder.setRenderPipelineState(self.bgPipelineState)
-        bgRenderEncoder.setVertexBuffer(self.vertexBuffer, offset: 0, atIndex: 0)
-        bgRenderEncoder.drawPrimitives(.Triangle, vertexStart: 0, vertexCount: 6, instanceCount: 1)
-        
-        bgRenderEncoder.endEncoding()
-        
         let computeEncoder = commandBuffer.computeCommandEncoder()
         computeEncoder.label = "Compute"
-        let computeTotal: MTLSize = MTLSizeMake(Int(self.size.width), 1, 1)
+        let computeTotal: MTLSize = MTLSizeMake(Int(self.size.width)/self.computeSize, 1, 1)
         computeEncoder.setComputePipelineState(self.rayPipelineState)
         //computeEncoder.setBuffer(<#T##buffer: MTLBuffer?##MTLBuffer?#>, offset: <#T##Int#>, atIndex: <#T##Int#>)
         computeEncoder.setTexture(self.computeTexOut, atIndex: 3)
         
-        computeEncoder.dispatchThreadgroups(computeTotal, threadsPerThreadgroup: self.computeSize)
+        computeEncoder.dispatchThreadgroups(computeTotal, threadsPerThreadgroup: MTLSizeMake(self.computeSize, 1, 1))
         computeEncoder.endEncoding()
         
-        bgRenderEncoder.label = "Composite"
+        if view.currentDrawable == nil {
+            print("No drawable!")
+            return
+        }
         
-        bgRenderEncoder.setRenderPipelineState(self.fgPipelineState)
-        bgRenderEncoder.setVertexBuffer(self.vertexBuffer, offset: 0, atIndex: 0)
-        bgRenderEncoder.setFragmentTexture(self.computeTexOut, atIndex: 0)
-        bgRenderEncoder.drawPrimitives(.Triangle, vertexStart: 0, vertexCount: 6, instanceCount: 1)
+        let drawable = view.currentDrawable!
+        let bgAttach = self.renderPassDescriptor.colorAttachments[0] as MTLRenderPassColorAttachmentDescriptor
+        bgAttach.texture = drawable.texture
         
-        bgRenderEncoder.endEncoding()
+        let renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor(self.renderPassDescriptor)
+        
+        renderEncoder.label = "Render to screen"
+        
+        renderEncoder.setRenderPipelineState(self.renderPipelineState)
+        renderEncoder.setVertexBuffer(self.vertexBuffer, offset: 0, atIndex: 0)
+        renderEncoder.setFragmentTexture(self.computeTexOut, atIndex: 0)
+        renderEncoder.drawPrimitives(.Triangle, vertexStart: 0, vertexCount: 6, instanceCount: 1)
+        
+        renderEncoder.endEncoding()
         
         commandBuffer.presentDrawable(drawable)
         commandBuffer.commit()
@@ -159,5 +143,8 @@ class GameViewController:UIViewController, MTKViewDelegate {
     
     func view(view: MTKView, willLayoutWithSize size: CGSize) {
         self.size = size
+        
+        let texDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(.RGBA8Unorm, width: Int(self.size.width), height: Int(self.size.height), mipmapped: false)
+        self.computeTexOut = self.device.newTextureWithDescriptor(texDescriptor)
     }
 }
