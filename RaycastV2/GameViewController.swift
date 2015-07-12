@@ -48,7 +48,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
     
     var computeTexOut: MTLTexture! = nil
     var computeSize = 64
-    var player: Player = Player(posx: 1.0, posy: 1.0, fov: 80.0, rot: 0.0)
+    var player: Player = Player(posx: 0.0, posy: 0.0, fov: 80.0, rot: 0.0)
     var level: Level = level1()
     var levelImage: MTLTexture! = nil
     
@@ -65,16 +65,19 @@ class GameViewController:UIViewController, MTKViewDelegate {
         //Initialize players
         //Initialize level (Rasterize to image)
         
+        self.player.posx = Float(self.level.spawn.x)
+        self.player.posy = Float(self.level.spawn.y)
+        
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapContext = CGBitmapContextCreate(UnsafeMutablePointer<Void>(), self.level.size.width, self.level.size.height, 8, self.level.size.width * 4, colorSpace, CGImageAlphaInfo.NoneSkipLast.rawValue)!
         CGContextSetAllowsAntialiasing(bitmapContext, false)
         
         let path = CGPathCreateMutable()
         //CGPathMoveToPoint(outerPath, UnsafePointer<CGAffineTransform>(), 0.0, 0.0)
-        CGPathAddRect(path, UnsafePointer<CGAffineTransform>(), CGRect(x: 0.0, y: 0.0, width: Double(self.level.size.width - 1), height: Double(self.level.size.height - 1)))
+        CGPathAddRect(path, UnsafePointer<CGAffineTransform>(), CGRect(x: 0.5, y: 0.5, width: Double(self.level.size.width) - 1.5, height: Double(self.level.size.height) - 1.5))
         for wall in level.walls {
-            CGPathMoveToPoint(path, UnsafePointer<CGAffineTransform>(), CGFloat(wall.point1.x), CGFloat(wall.point1.y))
-            CGPathAddLineToPoint(path, UnsafePointer<CGAffineTransform>(), CGFloat(wall.point2.x), CGFloat(wall.point2.y))
+            CGPathMoveToPoint(path, UnsafePointer<CGAffineTransform>(), CGFloat(wall.point1.x) + 0.5, CGFloat(wall.point1.y) + 0.5)
+            CGPathAddLineToPoint(path, UnsafePointer<CGAffineTransform>(), CGFloat(wall.point2.x) + 0.5, CGFloat(wall.point2.y) + 0.5)
         }
         CGContextAddPath(bitmapContext, path)
         CGContextSetStrokeColorWithColor(bitmapContext, UIColor.whiteColor().CGColor)
@@ -180,7 +183,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
         
         renderEncoder.setRenderPipelineState(self.renderPipelineState)
         renderEncoder.setVertexBuffer(self.vertexBuffer, offset: 0, atIndex: 0)
-        renderEncoder.setFragmentTexture(self.computeTexOut, atIndex: 0)
+        renderEncoder.setFragmentTexture(self.levelImage, atIndex: 0)
         renderEncoder.drawPrimitives(.Triangle, vertexStart: 0, vertexCount: 6, instanceCount: 1)
         
         renderEncoder.endEncoding()
