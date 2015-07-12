@@ -97,7 +97,7 @@ class GameViewController:UIViewController, MTKViewDelegate, HKWPlayerEventHandle
         //Initialize enemies and billboards
         
         self.player.posx = Float(self.level.spawn.x) + 0.5
-        self.player.posy = Float(self.level.size.height - self.level.spawn.y) + 0.5
+        self.player.posy = Float(self.level.spawn.y) + 0.5
         
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapContext = CGBitmapContextCreate(UnsafeMutablePointer<Void>(), self.level.size.width, self.level.size.height, 8, self.level.size.width * 4, colorSpace, CGImageAlphaInfo.NoneSkipLast.rawValue)!
@@ -106,8 +106,8 @@ class GameViewController:UIViewController, MTKViewDelegate, HKWPlayerEventHandle
         let path = CGPathCreateMutable()
         CGPathAddRect(path, UnsafePointer<CGAffineTransform>(), CGRect(x: 0.5, y: 0.5, width: Double(self.level.size.width) - 1.5, height: Double(self.level.size.height) - 1.5))
         for wall in level.walls {
-            CGPathMoveToPoint(path, UnsafePointer<CGAffineTransform>(), CGFloat(wall.point1.x) + 0.5, CGFloat(wall.point1.y) + 0.5)
-            CGPathAddLineToPoint(path, UnsafePointer<CGAffineTransform>(), CGFloat(wall.point2.x) + 0.5, CGFloat(wall.point2.y) + 0.5)
+            CGPathMoveToPoint(path, UnsafePointer<CGAffineTransform>(), CGFloat(wall.point1.x) + 0.5, CGFloat(self.level.size.height - wall.point1.y) + 0.5)
+            CGPathAddLineToPoint(path, UnsafePointer<CGAffineTransform>(), CGFloat(wall.point2.x) + 0.5, CGFloat(self.level.size.height - wall.point2.y) + 0.5)
         }
         CGContextAddPath(bitmapContext, path)
         CGContextSetStrokeColorWithColor(bitmapContext, UIColor.whiteColor().CGColor)
@@ -189,8 +189,6 @@ class GameViewController:UIViewController, MTKViewDelegate, HKWPlayerEventHandle
         
         //Create list of all enemies and place in billboard buffer, also place all other billboards
         
-        //player.rot += 0.05;
-        
         player.rot += Float(-self.touchDistance.x / 100.0) * 1.0 / 60.0;
         if player.rot > Float(M_PI) * 2.0 {
             player.rot -= Float(M_PI) * 2.0
@@ -200,10 +198,10 @@ class GameViewController:UIViewController, MTKViewDelegate, HKWPlayerEventHandle
         }
         
         var vel = Vector(x: cos(Double(player.rot)) * Double(-self.touchDistance.y / 25.0) * 1.0 / 60.0, y: sin(Double(player.rot)) * Double(-self.touchDistance.y / 25.0) * 1.0 / 60.0)
-        let playerCircle = Circle(center: Vector(x: Double(self.player.posx), y: Double(self.level.size.height) - Double(self.player.posy)), radius: 1.0)
+        let playerCircle = Circle(center: Vector(x: Double(self.player.posx), y: Double(self.player.posy)), radius: 1.0)
         
         for wall in self.level.walls {
-            let newWall = LineSeg(point1: Vector(x: Double(wall.point1.x), y: Double(wall.point1.y)), point2: Vector(x: Double(wall.point2.x), y: Double(wall.point2.y)))
+            let newWall = LineSeg(point1: Vector(x: Double(wall.point1.x) + 0.5, y: Double(wall.point1.y) + 0.5), point2: Vector(x: Double(wall.point2.x) + 0.5, y: Double(wall.point2.y) + 0.5))
             vel = handleCollision(playerCircle, circleVelocity: vel, line: newWall)
         }
         
@@ -279,18 +277,15 @@ class GameViewController:UIViewController, MTKViewDelegate, HKWPlayerEventHandle
     }
     
     func playCurrentIndex() {
-        
         HKWControlHandler.sharedInstance().stop()
         
-        let urlString = "../assets/effects/music/clair.wav"
-        print("URLString: \(urlString)")
-        let assetUrl = NSURL(string: urlString)
-        // or, let assetUrl = NSURL(string: urlString)
+        let assetUrl = NSBundle.mainBundle().URLForResource("clair", withExtension: "wav")
         
         let songName = "clair"
-        var musicDuration = 2.43
+        //var musicDuration = 2.43
         
         if HKWControlHandler.sharedInstance().playCAF(assetUrl, songName: songName, resumeFlag: false) {
+            
         }
     }
     
