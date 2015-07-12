@@ -20,7 +20,7 @@ func level1() -> Level {
                    ILineSeg(point1: IVector(x: 30, y: 30), point2: IVector(x: 30, y: 10)),
                    ILineSeg(point1: IVector(x: 35, y: 10), point2: IVector(x: 15, y: 10)),
                    ILineSeg(point1: IVector(x: 35, y: 10), point2: IVector(x: 40, y: 15)),
-                   ILineSeg(point1: IVector(x: 35, y: 0), point2: IVector(x: 45, y: 15)),
+                   ILineSeg(point1: IVector(x: 32, y: 0), point2: IVector(x: 45, y: 15)),
                    ILineSeg(point1: IVector(x: 40, y: 15), point2: IVector(x: 35, y: 20)),
                    ILineSeg(point1: IVector(x: 45, y: 15), point2: IVector(x: 40, y: 20)),
                    ILineSeg(point1: IVector(x: 35, y: 20), point2: IVector(x: 40, y: 25)),
