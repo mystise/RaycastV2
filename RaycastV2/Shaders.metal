@@ -72,26 +72,64 @@ kernel void raycast(texture2d<half, access::read> wallPositionTexture [[ texture
     float totalDistance = -1.0;
     float2 position = player->pos;
     int2 iposition = int2(position);
-    float playerRot = player->rot - player->fov * float(gid) / float(outTexture.get_width() - 1);
+    float playerRot = player->rot - player->fov / 2.0 + player->fov * float(gid) / float(outTexture.get_width() - 1);
     float2 rayDir = float2(cos(playerRot), sin(playerRot));
+    //int iterCount = 0;
     
     while (iposition.x < int(outTexture.get_width()) && iposition.y < int(outTexture.get_height()) && iposition.x >= 0 && iposition.y >= 0) {
         half4 value = wallPositionTexture.read(uint2(iposition));
         if (value.r > 0.5) {
-            totalDistance = distance_squared(float2(iposition), position);
+            totalDistance = length(float2(iposition) - player->pos);//length(position - player->pos);//
             break;
         }
         
+        float2 disp = float2(rayDir.x > 0.0 ? 1.0 - fract(position.x) : -fract(position.x), rayDir.y > 0.0 ? 1.0 - fract(position.y) : -fract(position.y));
+        if (rayDir.x == 0.0) { //Removed total distance and break. 3
+            disp.x = 10.0;
+        } else {
+            disp.x /= rayDir.x; //Moved from below. 4
+        }
         
-        int2 displacement = int2(rayDir.x > 0 ? 1 : -1, rayDir.y > 0 ? 1 : -1);
+        if (rayDir.y == 0.0) {
+            disp.y = 10.0;
+        } else {
+            disp.y /= rayDir.y;
+        }
         
-        iposition += displacement;
+        //disp.x = abs(disp.x);
+        //disp.y = abs(disp.y); //addition 1
+        
+        /*if (isnan(disp.x)) {
+            totalDistance = -1.0;
+            break;
+        }
+        
+        if (isnan(disp.y)) {
+            totalDistance = -1.0;
+            break;
+        }*/
+        
+        if (disp.x < disp.y) { //removed abs. 2
+            iposition.x += rayDir.x > 0 ? 1 : -1;
+        } else if (disp.y < disp.x) { //Added if clause and else 6
+            iposition.y += rayDir.y > 0 ? 1 : -1;
+        } else {
+            iposition.x += rayDir.x > 0 ? 1 : -1;
+            iposition.y += rayDir.y > 0 ? 1 : -1;
+        }
+        
+        position += min(disp.x, disp.y) * rayDir;
+        //iterCount += 1;
     }
     
-    float scale = 1.0; //outTexture.get_height() / 2 / 2510.0;
+    float scale = outTexture.get_height() / 2 / 6.0;//1.0;//
     if (totalDistance >= 0.0) {
+        half4 color = half4(1.0, 0.0, 1.0, 1.0);
+        if (length(position - float2(iposition)) > 1.0) { //Addition 5
+            color = half4(0.0, 1.0, 0.0, 1.0);
+        }
         for (uint i = totalDistance * scale; i < outTexture.get_height() - totalDistance * scale; i++) {
-            outTexture.write(half4(1.0, 0.0, 1.0, 1.0), uint2(gid, i));
+            outTexture.write(color, uint2(gid, i));
         }
     }
     
