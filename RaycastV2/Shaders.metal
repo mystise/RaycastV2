@@ -148,7 +148,7 @@ kernel void raycast(texture2d<half, access::read> wallPositionTexture [[ texture
         return;
     }
     
-    float scale = 500.0;
+    float scale = 100.0;
     
     uint xTex = uint((pos.x + pos.y) * 2.5) % wallTexture.get_width();
     float wallHeight = scale/distance*10.0;

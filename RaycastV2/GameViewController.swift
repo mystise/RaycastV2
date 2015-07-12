@@ -70,7 +70,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
         //Initialize enemies and billboards
         
         self.player.posx = Float(self.level.spawn.x) + 0.5
-        self.player.posy = Float(self.level.spawn.y) + 0.5
+        self.player.posy = Float(self.level.size.height - self.level.spawn.y) + 0.5
         
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapContext = CGBitmapContextCreate(UnsafeMutablePointer<Void>(), self.level.size.width, self.level.size.height, 8, self.level.size.width * 4, colorSpace, CGImageAlphaInfo.NoneSkipLast.rawValue)!
