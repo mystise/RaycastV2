@@ -34,8 +34,10 @@ struct Player {
     }
 }
 
-class GameViewController:UIViewController, MTKViewDelegate {
+class GameViewController:UIViewController, MTKViewDelegate, HKWPlayerEventHandlerDelegate {
     let device: MTLDevice = MTLCreateSystemDefaultDevice()!
+    
+    let g_licenseKey = "2FA8-2FD6-C27D-47E8-A256-D011-3751-2BD6"
     
     var size: CGSize = CGSizeZero
     var renderPassDescriptor: MTLRenderPassDescriptor! = nil
@@ -239,5 +241,25 @@ class GameViewController:UIViewController, MTKViewDelegate {
         case .Ended, .Cancelled: self.touchDistance = CGPointZero
         default: break
         }
+    }
+    
+    func playCurrentIndex() {
+        
+        HKWControlHandler.sharedInstance().stop()
+        
+        let urlString = "../assets/effects/music/clair.wav"
+        print("URLString: \(urlString)")
+        let assetUrl = NSURL(string: urlString)
+        // or, let assetUrl = NSURL(string: urlString)
+        
+        let songName = "clair"
+        var musicDuration = 2.43
+        
+        if HKWControlHandler.sharedInstance().playCAF(assetUrl, songName: songName, resumeFlag: false) {
+        }
+    }
+    
+    func hkwPlayEnded() {
+        HKWControlHandler.sharedInstance().stop()
     }
 }
