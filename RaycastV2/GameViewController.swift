@@ -48,7 +48,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
     
     var computeTexOut: MTLTexture! = nil
     var computeSize = 32
-    var player: Player = Player(posx: 0.0, posy: 0.0, fov: 0.78, rot: 0.0)
+    var player: Player = Player(posx: 0.0, posy: 0.0, fov: Float(M_PI_4), rot: 0.0)
     var level: Level = level1()
     var levelImage: MTLTexture! = nil
     var wallImage: MTLTexture! = nil
@@ -94,7 +94,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
         let region = MTLRegionMake2D(0, 0, self.level.size.width, self.level.size.height)
         self.levelImage.replaceRegion(region, mipmapLevel: 0, withBytes: pixels, bytesPerRow: self.level.size.width * 4)
         
-        let wallImage = UIImage(named: "wall_test.png")!
+        let wallImage = UIImage(named: "wall.png")!
         
         let wallBitmapContext = CGBitmapContextCreate(UnsafeMutablePointer<Void>(), Int(wallImage.size.width), Int(wallImage.size.height), 8, Int(wallImage.size.width) * 4, colorSpace, CGImageAlphaInfo.NoneSkipLast.rawValue)!
         CGContextSetAllowsAntialiasing(bitmapContext, false)
@@ -171,8 +171,8 @@ class GameViewController:UIViewController, MTKViewDelegate {
         if player.rot < 0.0 {
             player.rot += Float(M_PI) * 2.0
         }
-        player.posx += cos(player.rot) * Float(-self.touchDistance.y / 50.0) * 1.0 / 60.0
-        player.posy += sin(player.rot) * Float(-self.touchDistance.y / 50.0) * 1.0 / 60.0
+        player.posx += cos(player.rot) * Float(-self.touchDistance.y / 25.0) * 1.0 / 60.0
+        player.posy += sin(player.rot) * Float(-self.touchDistance.y / 25.0) * 1.0 / 60.0
         print("Rot: \(player.rot) X: \(player.posx) Y: \(player.posy)")
         
         let playerData = playerBuffer.contents()

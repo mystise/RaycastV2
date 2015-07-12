@@ -144,16 +144,30 @@ kernel void raycast(texture2d<half, access::read> wallPositionTexture [[ texture
         }
     }
     
+    if (distance < 0.0) {
+        return;
+    }
+    
     float scale = 500.0;
     
-    uint xTex = (ipos.x + ipos.y)*10 % wallTexture.get_width();
-    float wallHeight = scale/distance*5.0;
+    uint xTex = uint((pos.x + pos.y) * 2.5) % wallTexture.get_width();
+    float wallHeight = scale/distance*10.0;
     float start = (outTexture.get_height() - wallHeight)/2.0;
     float end = (outTexture.get_height() + wallHeight)/2.0;
+    uint newStart = 0;
+    uint newEnd = outTexture.get_height();
     
-    for (uint i = start; i < end; i++) {
-        //uint yTex = uint((i-distance*scale)*wallTexture.get_height()/outTexture.get_height()) % wallTexture.get_height();
-        uint yTex = 2;
+    if (start > 0) {
+        newStart = start;
+    }
+    
+    if (end < outTexture.get_height()) {
+        newEnd = end;
+    }
+    
+    for (uint i = newStart; i < newEnd; i++) {
+        uint yTex = uint(float(i - start) / (end - start) * wallTexture.get_height());
+        //uint yTex = 2;
         outTexture.write(wallTexture.read(uint2(xTex, yTex)), uint2(gid, i));
     }
     /*if (length(pos - float2(ipos)) > 1.0 || flag) {
