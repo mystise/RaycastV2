@@ -200,14 +200,16 @@ func test(ray: Ray, circle: Circle) -> Vector? {
 }*/
 
 //Velocity is premultiplied with the framerate, thus the circle moves along the entire length in this function.
-func handleCollision(var circle: Circle, circleVelocity: Vector, var line: LineSeg) -> Vector { //Return vector is the new velocity vector. (Adjusted for collisions and sliding)
+func handleCollision(circle: Circle, circleVelocity: Vector, line: LineSeg) -> Vector { //Return vector is the new velocity vector. (Adjusted for collisions and sliding)
     
-    circle.center -= line.point1 //Transform into point1's space to make calculations easier
-    line.point2 -= line.point1
-    line.point1 = Vector(x: 0.0, y: 0.0)
+    var beginCircle = circle
+    beginCircle.center -= line.point1 //Transform into point1's space to make calculations easier
+    var colLine = line
+    colLine.point2 -= line.point1
+    colLine.point1 = Vector(x: 0.0, y: 0.0)
     
-    var lineNormal = Vector(x: line.point2.y, y: -line.point2.x).norm()
-    if lineNormal * circle.center < 0.0 { //Ensure the normal is facing towards us
+    var lineNormal = Vector(x: colLine.point2.y, y: -colLine.point2.x).norm()
+    if lineNormal * beginCircle.center < 0.0 { //Ensure the normal is facing towards us
         lineNormal = -lineNormal
     }
     
@@ -215,7 +217,7 @@ func handleCollision(var circle: Circle, circleVelocity: Vector, var line: LineS
         return circleVelocity
     }
     
-    //let nearPoint = circle.center - lineNormal * circle.radius
+    //let nearPoint = beginCircle.center - lineNormal * beginCircle.radius
     
     /*if nearPoint * lineNormal < 0.0 { //If we're stuck in a wall already, and we're not moving away, cancel all movement.
         return Vector(x: 0.0, y: 0.0)
@@ -223,32 +225,36 @@ func handleCollision(var circle: Circle, circleVelocity: Vector, var line: LineS
     
     //let velocityNormal = Vector(x: circleVelocity.y, y: -circleVelocity.x).norm()
     
-    //let point1 = circle.center - velocityNormal * circle.radius //Get the two points sweeping the bounding rectangle of the movement.
-    //let point2 = circle.center + velocityNormal * circle.radius
+    //let point1 = beginCircle.center - velocityNormal * beginCircle.radius //Get the two points sweeping the bounding rectangle of the movement.
+    //let point2 = beginCircle.center + velocityNormal * beginCircle.radius
     
     //let line1 = LineSeg(point1: point1, point2: point1 + circleVelocity)
     //let line2 = LineSeg(point1: point2, point2: point2 + circleVelocity)
     
-    var finalCircle = Circle(center: circle.center + circleVelocity, radius: circle.radius)
+    var finalCircle = Circle(center: beginCircle.center + circleVelocity, radius: beginCircle.radius)
     
-    //let collision = test(line, line1: line1) != nil || test(line, line1: line2) != nil
-    //let finalCircleCollide = finalCircle.center * lineNormal < circle.radius
+    //let collision = test(colLine, line1: line1) != nil || test(colLine, line1: line2) != nil
+    //let finalCircleCollide = finalCircle.center * lineNormal < beginCircle.radius
     
-    var finalNormal = Vector(x: line.point2.y, y: -line.point2.x).norm()
+    var finalNormal = Vector(x: colLine.point2.y, y: -colLine.point2.x).norm()
     if finalNormal * finalCircle.center > 0.0 { //Ensure the normal is facing away from us
         finalNormal = -finalNormal
     }
     
-    //let collision = finalCircle.center * finalNormal < circle.radius
-    let line2 = LineSeg(point1: finalCircle.center - finalNormal * circle.radius, point2: finalCircle.center + finalNormal * circle.radius)
-    let collision2 = test(line2, line1: line) != nil
+    //let collision = finalCircle.center * finalNormal < beginCircle.radius
+    let line2 = LineSeg(point1: finalCircle.center - finalNormal * beginCircle.radius, point2: finalCircle.center + finalNormal * beginCircle.radius)
+    let collision2 = test(line2, line1: colLine) != nil
+    
+    if colLine.point2.x != 0.0 {
+        print("Horizontal wall")
+    }
     
     if collision2 {
         print("Collision")
         //Projection a onto b: a dot b * b / mag(b)^2
-        let moveVec = finalNormal * (circle.radius + finalCircle.center * finalNormal)
+        let moveVec = finalNormal * (beginCircle.radius + finalCircle.center * finalNormal)
         finalCircle.center -= moveVec
-        return finalCircle.center - circle.center
+        return finalCircle.center - beginCircle.center
     }
     
     return circleVelocity

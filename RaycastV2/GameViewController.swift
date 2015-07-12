@@ -205,6 +205,15 @@ class GameViewController:UIViewController, MTKViewDelegate, HKWPlayerEventHandle
             vel = handleCollision(playerCircle, circleVelocity: vel, line: newWall)
         }
         
+        let wall1 = LineSeg(point1: Vector(x: Double(0.0) + 0.5, y: Double(0.0) + 0.5), point2: Vector(x: Double(self.level.size.width) + 0.5, y: Double(0.0) + 0.5))
+        vel = handleCollision(playerCircle, circleVelocity: vel, line: wall1)
+        let wall2 = LineSeg(point1: Vector(x: Double(self.level.size.width) + 0.5, y: Double(0.0) + 0.5), point2: Vector(x: Double(self.level.size.width) + 0.5, y: Double(self.level.size.height) + 0.5))
+        vel = handleCollision(playerCircle, circleVelocity: vel, line: wall2)
+        let wall3 = LineSeg(point1: Vector(x: Double(self.level.size.width) + 0.5, y: Double(self.level.size.height) + 0.5), point2: Vector(x: Double(0.0) + 0.5, y: Double(self.level.size.height) + 0.5))
+        vel = handleCollision(playerCircle, circleVelocity: vel, line: wall3)
+        let wall4 = LineSeg(point1: Vector(x: Double(0.0) + 0.5, y: Double(self.level.size.height) + 0.5), point2: Vector(x: Double(0.0) + 0.5, y: Double(0.0) + 0.5))
+        vel = handleCollision(playerCircle, circleVelocity: vel, line: wall4)
+        
         player.posx += Float(vel.x)
         player.posy += Float(vel.y)
         
